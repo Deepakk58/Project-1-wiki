@@ -3,12 +3,34 @@ from . import util
 from markdown2 import Markdown
 from random import randint
 from django import forms
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from bs4 import BeautifulSoup
+import re
 
 
-class NewTaskForm(forms.Form):
+class SearchForm(forms.Form):
     q = forms.CharField(label="Search")
 
+class NewEntryForm(forms.Form):
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'class': 'search'}))
+    content = forms.CharField(label="Page Content", widget=forms.TextInput(attrs={'class': 'search'}))
+    
+
+class EditEntryForm(forms.Form):
+    content = forms.CharField(label="Page Content", widget=forms.TextInput(attrs={'class': 'search'}))
+
 markdowner = Markdown()
+
+def HTMLtoText(html):
+    html = markdowner.convert(html)
+    html = re.sub(r"<h1>.*?</h1>", "", html, flags=re.DOTALL)
+    text = BeautifulSoup(html)
+    text = text.get_text()
+    return text
+
+def Addtitle(html, title):
+    return "#"+title+'\n'+html
 
 def index(request):    
     return render(request, "encyclopedia/index.html", {
@@ -28,7 +50,7 @@ def random(request):
 
 def search(request):
     if request.method == "POST":
-        form = NewTaskForm(request.POST)
+        form = SearchForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data["q"]
             page = util.get_entry(name)
@@ -45,6 +67,10 @@ def search(request):
                 for entry in util.list_entries():
                     if name.upper() in entry.upper():
                         entries.append(entry)
+                if entries == []:
+                    return render(request, "encyclopedia/error404.html", {
+                        "name": name
+                    })
                 return render(request, "encyclopedia/search.html", {
                     "name": name,
                     "entries": entries
@@ -71,4 +97,46 @@ def loadEntry(request, name):
     })
 
 def newEntry(request):
-    return render(request, "encyclopedia/entry.html")
+    if request.method == 'POST':
+        form = NewEntryForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+            content = Addtitle(content, title)
+            if util.get_entry(title) != None:
+
+                return render(request, "encyclopedia/errorAlreadyExist.html", {
+                    "name": title.upper()
+                })
+            else:
+                util.save_entry(title, content)
+                return HttpResponseRedirect(reverse("encyclopedia:loadEntry", kwargs={"name": title})) 
+
+        else:
+            return render(request, "encyclopedia/newEntry.html", {
+                "form": form
+            })
+
+    return render(request, "encyclopedia/newEntry.html", {
+        "form": NewEntryForm()
+    })
+
+def edit(request, title):
+    if request.method == 'POST':
+        form = EditEntryForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data["content"]
+            content = Addtitle(content, title)
+            util.save_entry(title, content)
+            return HttpResponseRedirect(reverse("encyclopedia:loadEntry", kwargs={"name": title})) 
+
+        else:
+            return render(request, "encyclopedia/edit.html", {
+                "form": form,
+                "title": title
+            })
+    text = HTMLtoText(util.get_entry(title))
+    return render(request, "encyclopedia/edit.html", {
+        "form" : EditEntryForm(initial={'content': text}),
+        "title": title
+    })

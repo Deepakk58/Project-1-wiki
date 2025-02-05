@@ -15,13 +15,14 @@
                 <form action="{% url 'encyclopedia:search' %}" method="post">
                     {% csrf_token %}
                     <input class="search" type="text" name="q" placeholder="Search Encyclopedia">
+                     
                     <input type="submit" value="Search">
                 </form>
                 <div>
                     <a href="{% url 'encyclopedia:index' %}">Home</a>
                 </div>
                 <div>
-                    <a href="" style="color: #212529;">Create New Page</a>
+                    <a href="{% url 'encyclopedia:newEntry' %}" style="color: #212529;">Create New Page</a>
                 </div>
                 <div>
                     <a href="{% url 'encyclopedia:random' %}" style="color: #212529;">Random Page</a>

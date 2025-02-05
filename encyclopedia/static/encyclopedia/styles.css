@@ -36,3 +36,9 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+#button {
+    text-decoration: none;
+    color: #212529;
+    
+}
