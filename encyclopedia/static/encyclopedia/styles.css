@@ -37,8 +37,37 @@ textarea {
     margin-top: 5px;
 }
 
+
+
 #button {
     text-decoration: none;
     color: #212529;
-    
+}
+
+.btnBox {
+    background-color: #f0f0f0;
+    border: 1px solid #212529;
+    border-radius: 3px;
+    height: 26px;
+    width: 44px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;  
+    font-family: sans-serif; 
+}
+
+.title {
+    margin-top: 10px;
+    margin-left: 70px;
+}
+
+.content {
+    margin-left: 5px;
+    height: 300px;
+    width: 500px;
+}
+
+label[for="id_content"] {
+    position: relative;
+    bottom: 280px;
 }

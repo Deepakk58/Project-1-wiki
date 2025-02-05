@@ -15,8 +15,6 @@
                 <form action="{% url 'encyclopedia:search' %}" method="post">
                     {% csrf_token %}
                     <input class="search" type="text" name="q" placeholder="Search Encyclopedia">
-                     
-                    <input type="submit" value="Search">
                 </form>
                 <div>
                     <a href="{% url 'encyclopedia:index' %}">Home</a>

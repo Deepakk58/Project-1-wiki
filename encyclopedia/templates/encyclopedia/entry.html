@@ -6,7 +6,8 @@
 
 {% block body %}
     {{ page|safe }}
-    
-    <a href="{% url 'encyclopedia:edit' title=name %}" id="button">Edit</a>
+    <div class="btnBox">
+        <a href="{% url 'encyclopedia:edit' title=name %}" id="button">Edit</a>
+    </div>
 
 {% endblock %}

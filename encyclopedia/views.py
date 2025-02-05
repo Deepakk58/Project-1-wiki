@@ -13,12 +13,12 @@ class SearchForm(forms.Form):
     q = forms.CharField(label="Search")
 
 class NewEntryForm(forms.Form):
-    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'class': 'search'}))
-    content = forms.CharField(label="Page Content", widget=forms.TextInput(attrs={'class': 'search'}))
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'class': 'title', 'placeholder': 'Title'}))
+    content = forms.CharField(label="Page Content", widget=forms.Textarea(attrs={'class': 'content', 'placeholder': 'Write Page Content Here'}))
     
 
 class EditEntryForm(forms.Form):
-    content = forms.CharField(label="Page Content", widget=forms.TextInput(attrs={'class': 'search'}))
+    content = forms.CharField(label="Page Content", widget=forms.Textarea(attrs={'class': 'content', 'placeholder': 'Write Page Content Here'}))
 
 markdowner = Markdown()
 
@@ -27,7 +27,7 @@ def HTMLtoText(html):
     html = re.sub(r"<h1>.*?</h1>", "", html, flags=re.DOTALL)
     text = BeautifulSoup(html)
     text = text.get_text()
-    return text
+    return text[1:]
 
 def Addtitle(html, title):
     return "#"+title+'\n'+html
@@ -45,7 +45,7 @@ def random(request):
     
     return render(request, "encyclopedia/entry.html", {
         "page": converted_page,
-        "name": entries[n].upper()
+        "name": entries[n].capitalize()
     })
 
 def search(request):
@@ -59,7 +59,7 @@ def search(request):
                 converted_page = markdowner.convert(page)
                 return render(request, "encyclopedia/entry.html", {
                     "page": converted_page,
-                    "name": name.upper()
+                    "name": name.capitalize()
                 })
             
             else:
@@ -93,7 +93,7 @@ def loadEntry(request, name):
     converted_page = markdowner.convert(page)
     return render(request, "encyclopedia/entry.html", {
         "page": converted_page,
-        "name": name.upper()
+        "name": name.capitalize()
     })
 
 def newEntry(request):
@@ -106,7 +106,7 @@ def newEntry(request):
             if util.get_entry(title) != None:
 
                 return render(request, "encyclopedia/errorAlreadyExist.html", {
-                    "name": title.upper()
+                    "name": title.capitalize()
                 })
             else:
                 util.save_entry(title, content)
